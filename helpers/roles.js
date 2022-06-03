@@ -3,7 +3,6 @@ const roles = {
   raidLeader: "",
 };
 
-
 module.exports = {
   roles,
 };

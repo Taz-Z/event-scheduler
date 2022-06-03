@@ -54,7 +54,6 @@ const getGuildFromClient = async (client) => {
 
 const createEmbedSpace = () => ({ name: "\u200b", value: "\u200b" });
 
-
 const getButtonChoiceValue = async (
   memb,
   content,

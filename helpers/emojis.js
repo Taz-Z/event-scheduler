@@ -1,10 +1,6 @@
-const emojiUids = {
+const emojiUids = {};
 
-};
-
-const unicodeEmojis = {
-
-};
+const unicodeEmojis = {};
 
 module.exports = {
   emojiUids,
