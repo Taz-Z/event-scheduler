@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
+const { MessageActionRow, MessageButton } = require("discord.js");
 const { getBaseEmbed } = require("../helpers/helper");
 
 module.exports = {
@@ -99,7 +100,6 @@ module.exports = {
     const date = interaction.options.getString("date");
     const leader = interaction.options.getString("leader");
     const role = interaction.options.getString("role");
-    console.log(content, date, leader, role);
     if (!content || !date || !leader || !role) return;
     const embed = getBaseEmbed(`${leader}'s ${content} Run`);
     embed
@@ -122,8 +122,23 @@ module.exports = {
         },
         { name: "Support Slot 2", value: "OPEN", inline: true },
       ])
-      .setFooter({ text: "Click on the apply button below to apply to the group" });
+      .setFooter({ text: "Click on the button below to apply to the group" });
 
-    await interaction.reply({ embeds: [embed] });
+    const row = new MessageActionRow().addComponents(
+      new MessageButton()
+        .setCustomId("1")
+        .setLabel("Apply")
+        .setStyle("SUCCESS"),
+      new MessageButton()
+        .setCustomId("2")
+        .setLabel("Can't Make It")
+        .setStyle("DANGER"),
+        new MessageButton()
+        .setCustomId("3")
+        .setLabel("Edit")
+        .setStyle("PRIMARY")
+    );
+
+    await interaction.reply({ embeds: [embed], components: [row] });
   },
 };
