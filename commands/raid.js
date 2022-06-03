@@ -68,15 +68,62 @@ module.exports = {
             value: "supp",
           }
         )
+    )
+    .addStringOption((option) =>
+      option.setName("dps1").setDescription("Name of a dps")
+    )
+    .addStringOption((option) =>
+      option.setName("dps2").setDescription("Name of a dps")
+    )
+    .addStringOption((option) =>
+      option.setName("dps3").setDescription("Name of a dps")
+    )
+    .addStringOption((option) =>
+      option.setName("dps4").setDescription("Name of a dps")
+    )
+    .addStringOption((option) =>
+      option.setName("dps5").setDescription("Name of a dps")
+    )
+    .addStringOption((option) =>
+      option.setName("dps6").setDescription("Name of a dps")
+    )
+    .addStringOption((option) =>
+      option.setName("supp1").setDescription("Name of a support")
+    )
+    .addStringOption((option) =>
+      option.setName("supp2").setDescription("Name of a support")
     ),
+
   async execute(interaction) {
     const content = interaction.options.getString("content");
     const date = interaction.options.getString("date");
     const leader = interaction.options.getString("leader");
-    const dps = interaction.options.getString("role");
-    console.log(content, date, leader, dps);
+    const role = interaction.options.getString("role");
+    console.log(content, date, leader, role);
     if (!content || !date || !leader || !role) return;
-    const embed = getBaseEmbed("Uhhh");
+    const embed = getBaseEmbed(`${leader}'s ${content} Run`);
+    embed
+      .setDescription(`Date/Time of run: ${date}`)
+      .addFields([
+        {
+          name: "Dps Slot 1",
+          value: role === "dps" ? leader : "OPEN",
+          inline: true,
+        },
+        { name: "Dps Slot 2", value: "OPEN", inline: true },
+        { name: "Dps Slot 3", value: "OPEN", inline: true },
+        { name: "Dps Slot 4", value: "OPEN", inline: true },
+        { name: "Dps Slot 5", value: "OPEN", inline: true },
+        { name: "Dps Slot 6", value: "OPEN", inline: true },
+        {
+          name: "Support Slot 1",
+          value: role === "dps" ? "OPEN" : leader,
+          inline: true,
+        },
+        { name: "Support Slot 2", value: "OPEN", inline: true },
+      ])
+      .setFooter({ text: "Click on the apply button below to apply to the group" });
+
     await interaction.reply({ embeds: [embed] });
   },
 };
