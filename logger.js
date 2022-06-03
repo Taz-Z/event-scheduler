@@ -1,9 +1,5 @@
 const { format, createLogger, transports } = require("winston");
 const { combine, printf, errors } = format;
-const {
-  PapertrailConnection,
-  PapertrailTransport,
-} = require("winston-papertrail");
 
 const logFormat = printf(({ level, message, timestamp, stack }) => {
   return `[${level}]: ${stack || message}`;
