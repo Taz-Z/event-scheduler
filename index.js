@@ -2,6 +2,14 @@ const { Client, Intents, Collection } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
 const { token } = require("./auth.json");
+const {
+  APPLY,
+  RESCIND,
+  EDIT,
+  ACCEPT_APPLICATION,
+  REJECT_APPLICATION,
+} = require("./helpers/consts");
+const { handleApply } = require("./Interaction Handlers/apply");
 const client = new Client({
   intents: [
     Intents.FLAGS.DIRECT_MESSAGES,
@@ -34,20 +42,35 @@ client.once("ready", () => {
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) return;
+  if (interaction.isButton()) {
+    const [embedInteractionId, actionType] = interaction.customId.split("-");
+    switch (actionType) {
+      case APPLY:
+        handleApply(embedInteractionId, interaction.user, client);
+        break;
+      case RESCIND:
+      case EDIT:
+      case ACCEPT_APPLICATION:
+      case REJECT_APPLICATION:
+        break;
+      default:
+        break;
+    }
+  }
+  if (interaction.isCommand()) {
+    const command = client.commands.get(interaction.commandName);
 
-  const command = client.commands.get(interaction.commandName);
+    if (!command) return;
 
-  if (!command) return;
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    await interaction.reply({
-      content: "There was an error while executing this command!",
-      ephemeral: true,
-    });
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(error);
+      await interaction.reply({
+        content: "There was an error while executing this command!",
+        ephemeral: true,
+      });
+    }
   }
 });
 

@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { MessageActionRow, MessageButton } = require("discord.js");
-const { getBaseEmbed } = require("../helpers/helper");
+const { APPLY, RESCIND, EDIT, SUCCESS } = require("../helpers/consts");
+const { getBaseEmbed, loadData, saveData } = require("../helpers/helper");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -126,18 +127,29 @@ module.exports = {
 
     const row = new MessageActionRow().addComponents(
       new MessageButton()
-        .setCustomId("1")
-        .setLabel("Apply")
-        .setStyle("SUCCESS"),
+        .setCustomId(`${interaction.id}-${APPLY}`)
+        .setLabel("Apply to Group")
+        .setStyle(SUCCESS),
       new MessageButton()
-        .setCustomId("2")
+        .setCustomId(`${interaction.id}-${RESCIND}`)
         .setLabel("Can't Make It")
-        .setStyle("DANGER"),
-        new MessageButton()
-        .setCustomId("3")
+        .setStyle(DANGER),
+      new MessageButton()
+        .setCustomId(`${interaction.id}-${EDIT}`)
         .setLabel("Edit")
-        .setStyle("PRIMARY")
+        .setStyle(PRIMARY)
     );
+
+    const newRaid = {
+      admin: interaction.user.id,
+      content,
+      date,
+      dps: [],
+      supp: [],
+    };
+    const schedule = await loadData();
+    schedule[interaction.id] = newRaid; //add some data
+    await saveData(schedule);
 
     await interaction.reply({ embeds: [embed], components: [row] });
   },

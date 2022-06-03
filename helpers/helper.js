@@ -103,7 +103,37 @@ const getButtonChoiceValue = async (
     throw e;
   }
 };
-
+const getClassValue = async (memb, id, content) => {
+  const classes = [
+    "Berserker",
+    "Paladin",
+    "Gunlancer",
+    "Destroyer",
+    "Striker",
+    "Wardancer",
+    "Scrapper",
+    "Soulfist",
+    "Glavier",
+    "Gunslinger",
+    "Artillerist",
+    "Deadeye",
+    "Sharpshooter",
+    "Bard",
+    "Sorceress",
+    "Arcana",
+    "ShadowHunter",
+    "Deathblade",
+  ];
+  return await getSelectMenuValue(
+    memb,
+    id,
+    content,
+    classes.reduce((acc, curr) => {
+      acc.push({ label: curr, value: curr });
+      return acc;
+    }, [])
+  );
+};
 const getSelectMenuValue = async (memb, id, content, options) => {
   const components = [
     new MessageActionRow().addComponents(
@@ -148,6 +178,20 @@ const getFirstTextAnswer = async (memb, question) => {
   return collected.first()?.content ?? "";
 };
 
+const dataFile = "schedule.json";
+
+const loadData = async () => {
+  return JSON.parse(await fs.readFileSync(dataFile));
+};
+
+const getRaidData = async (id) => {
+  return (await loadData())[id];
+};
+
+const saveData = async (data) => {
+  await fs.writeFileSync(dataFile, JSON.stringify(data));
+};
+
 module.exports = {
   getMemb,
   getIdGuildMemb,
@@ -160,4 +204,8 @@ module.exports = {
   getSelectMenuValue,
   getButtonChoiceValue,
   getFirstTextAnswer,
+  loadData,
+  saveData,
+  getRaidData,
+  getClassValue,
 };
