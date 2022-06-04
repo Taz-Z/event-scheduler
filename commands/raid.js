@@ -1,7 +1,21 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { MessageActionRow, MessageButton } = require("discord.js");
-const { APPLY, RESCIND, EDIT, SUCCESS } = require("../helpers/consts");
-const { getBaseEmbed, loadData, saveData } = require("../helpers/helper");
+const {
+  APPLY,
+  RESCIND,
+  EDIT,
+  SUCCESS,
+  DANGER,
+  PRIMARY,
+  classes,
+  content,
+} = require("../helpers/consts");
+const {
+  getBaseEmbed,
+  loadData,
+  saveData,
+  isDps,
+} = require("../helpers/helper");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -13,34 +27,12 @@ module.exports = {
         .setDescription("The raid which you are doing")
         .setRequired(true)
         .addChoices(
-          {
-            name: "Argos P1",
-            value: "Argos P1",
-          },
-          {
-            name: "Argos P2",
-            value: "Argos P2",
-          },
-          {
-            name: "Argos P3",
-            value: "Argos P3",
-          },
-          {
-            name: "Normal Valtan",
-            value: "Normal Valtan",
-          },
-          {
-            name: "Hard Mode Valtan",
-            value: "Hard Mode Valtan",
-          },
-          {
-            name: "Normal Vykas",
-            value: "Normal Vykas",
-          },
-          {
-            name: "Hard Mode Vykas",
-            value: "Hard Mode Vykas",
-          }
+          ...content.map((boss) => {
+            return {
+              name: boss,
+              value: boss,
+            };
+          })
         )
     )
     .addStringOption((option) =>
@@ -57,58 +49,32 @@ module.exports = {
     )
     .addStringOption((option) =>
       option
-        .setName("role")
-        .setDescription("Are you a dps or support?")
+        .setName("chosenclass")
+        .setDescription("Select your class")
         .setRequired(true)
         .addChoices(
-          {
-            name: "I am a dps",
-            value: "dps",
-          },
-          {
-            name: "I am a support",
-            value: "supp",
-          }
+          ...classes.map((classChoice) => {
+            return {
+              name: classChoice,
+              value: classChoice,
+            };
+          })
         )
-    )
-    .addStringOption((option) =>
-      option.setName("dps1").setDescription("Name of a dps")
-    )
-    .addStringOption((option) =>
-      option.setName("dps2").setDescription("Name of a dps")
-    )
-    .addStringOption((option) =>
-      option.setName("dps3").setDescription("Name of a dps")
-    )
-    .addStringOption((option) =>
-      option.setName("dps4").setDescription("Name of a dps")
-    )
-    .addStringOption((option) =>
-      option.setName("dps5").setDescription("Name of a dps")
-    )
-    .addStringOption((option) =>
-      option.setName("dps6").setDescription("Name of a dps")
-    )
-    .addStringOption((option) =>
-      option.setName("supp1").setDescription("Name of a support")
-    )
-    .addStringOption((option) =>
-      option.setName("supp2").setDescription("Name of a support")
     ),
-
   async execute(interaction) {
     const content = interaction.options.getString("content");
     const date = interaction.options.getString("date");
     const leader = interaction.options.getString("leader");
-    const role = interaction.options.getString("role");
-    if (!content || !date || !leader || !role) return;
+    const chosenClass = interaction.options.getString("chosenclass");
+    if (!content || !date || !leader || !chosenClass) return;
+    const isDps = isDps(chosenClass);
     const embed = getBaseEmbed(`${leader}'s ${content} Run`);
     embed
       .setDescription(`Date/Time of run: ${date}`)
       .addFields([
         {
           name: "Dps Slot 1",
-          value: role === "dps" ? leader : "OPEN",
+          value: isDps ? `${leader} (${chosenClass})` : "OPEN",
           inline: true,
         },
         { name: "Dps Slot 2", value: "OPEN", inline: true },
@@ -118,7 +84,7 @@ module.exports = {
         { name: "Dps Slot 6", value: "OPEN", inline: true },
         {
           name: "Support Slot 1",
-          value: role === "dps" ? "OPEN" : leader,
+          value: !isDps ? `${leader} (${chosenClass})` : "OPEN",
           inline: true,
         },
         { name: "Support Slot 2", value: "OPEN", inline: true },
@@ -140,17 +106,39 @@ module.exports = {
         .setStyle(PRIMARY)
     );
 
+    const reply = await interaction.reply({
+      embeds: [embed],
+      components: [row],
+      fetchReply: true,
+    });
+
     const newRaid = {
       admin: interaction.user.id,
+      leader,
+      messageId: reply.id,
       content,
       date,
-      dps: [],
-      supp: [],
+      dps: isDps
+        ? [
+            {
+              id: interaction.user.id,
+              name: leader,
+              chosenClass,
+            },
+          ]
+        : [],
+      supp: !isDps
+        ? [
+            {
+              id: interaction.user.id,
+              name: leader,
+              chosenClass,
+            },
+          ]
+        : [],
     };
     const schedule = await loadData();
     schedule[interaction.id] = newRaid; //add some data
     await saveData(schedule);
-
-    await interaction.reply({ embeds: [embed], components: [row] });
   },
 };

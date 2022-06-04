@@ -4,6 +4,7 @@ const {
   MessageSelectMenu,
 } = require("discord.js");
 const fs = require("fs");
+const { classes } = require("./consts");
 
 const hasValidRole = (givenRoles, ...addtionalRoles) => {
   const acceptedRoles = new Set();
@@ -134,6 +135,7 @@ const getClassValue = async (memb, id, content) => {
     }, [])
   );
 };
+
 const getSelectMenuValue = async (memb, id, content, options) => {
   const components = [
     new MessageActionRow().addComponents(
@@ -192,6 +194,8 @@ const saveData = async (data) => {
   await fs.writeFileSync(dataFile, JSON.stringify(data));
 };
 
+const isDps = (chosenClass) => !classes.has(chosenClass);
+
 module.exports = {
   getMemb,
   getIdGuildMemb,
@@ -208,4 +212,5 @@ module.exports = {
   saveData,
   getRaidData,
   getClassValue,
+  isDps,
 };

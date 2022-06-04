@@ -9,7 +9,7 @@ const {
   ACCEPT_APPLICATION,
   REJECT_APPLICATION,
 } = require("./helpers/consts");
-const { handleApply } = require("./Interaction Handlers/apply");
+const { handleApply, handleAccept } = require("./Interaction Handlers/apply");
 const client = new Client({
   intents: [
     Intents.FLAGS.DIRECT_MESSAGES,
@@ -43,16 +43,17 @@ client.once("ready", () => {
 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isButton()) {
-    const [embedInteractionId, actionType] = interaction.customId.split("-");
+    const [uuid, actionType, queryString] = interaction.customId.split("-");
     switch (actionType) {
       case APPLY:
-        handleApply(embedInteractionId, interaction.user, client);
+        handleApply(uuid, interaction.user, client);
+        break;
+      case ACCEPT_APPLICATION:
+        handleAccept(uuid, client, interaction.user, queryString);
         break;
       case RESCIND:
       case EDIT:
-      case ACCEPT_APPLICATION:
       case REJECT_APPLICATION:
-        break;
       default:
         break;
     }
