@@ -64,6 +64,7 @@ client.on("interactionCreate", async (interaction) => {
       default:
         break;
     }
+    interaction.deferUpdate();
   }
   if (interaction.isCommand()) {
     const command = client.commands.get(interaction.commandName);
