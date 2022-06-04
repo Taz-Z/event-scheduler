@@ -10,6 +10,7 @@ const {
   REJECT_APPLICATION,
 } = require("./helpers/consts");
 const { handleApply, handleAccept } = require("./Interaction Handlers/apply");
+const { handleEdit } = require("./Interaction Handlers/edit");
 const { handleReject } = require("./Interaction Handlers/reject");
 const { handleRescind } = require("./Interaction Handlers/rescind");
 const client = new Client({
@@ -55,6 +56,8 @@ client.on("interactionCreate", async (interaction) => {
         handleRescind(uuid, client, interaction.user);
         break;
       case EDIT:
+        handleEdit(uuid, client, interaction.user);
+        break;
       case REJECT_APPLICATION:
         handleReject(uuid, client, interaction.user, queryString);
         break;

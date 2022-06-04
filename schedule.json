@@ -3,8 +3,20 @@
     "admin": "220779221453242369",
     "leader": "Taz",
     "messageId": "982731306515451924",
-    "content": "Hard Mode Valtan",
-    "date": "Tuesday 7pm EST",
+    "content": "Argos P1",
+    "date": "Wednedsday 10pom EST",
+    "dps": [
+      { "id": "220779221453242369", "name": "Taz", "chosenClass": "Striker" },
+      { "id": "220779221453242369", "name": "Taz", "chosenClass": "Gunlancer" }
+    ],
+    "supp": []
+  },
+  "982753973998071808": {
+    "admin": "220779221453242369",
+    "leader": "me",
+    "messageId": "982753974467846154",
+    "content": "Argos P2",
+    "date": "today",
     "dps": [],
     "supp": []
   }
