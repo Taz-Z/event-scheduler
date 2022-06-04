@@ -9,7 +9,8 @@ const {
   ACCEPT_APPLICATION,
   REJECT_APPLICATION,
 } = require("./helpers/consts");
-const { handleApply, handleAccept } = require("./Interaction Handlers/apply");
+const { handleAccept } = require("./Interaction Handlers/accept");
+const { handleApply } = require("./Interaction Handlers/apply");
 const { handleEdit } = require("./Interaction Handlers/edit");
 const { handleReject } = require("./Interaction Handlers/reject");
 const { handleRescind } = require("./Interaction Handlers/rescind");
@@ -47,30 +48,33 @@ client.on("interactionCreate", async (interaction) => {
     const [uuid, actionType, queryString] = interaction.customId.split("&");
     switch (actionType) {
       case APPLY:
-        handleApply(uuid, interaction.user, client);
+        interaction.deferUpdate();
+        await handleApply(uuid, interaction.user, client);
         break;
       case ACCEPT_APPLICATION:
-        handleAccept(uuid, client, interaction.user, queryString);
+        await handleAccept(
+          uuid,
+          client,
+          interaction.user,
+          queryString,
+          interaction
+        );
         break;
       case RESCIND:
-        handleRescind(uuid, client, interaction.user);
+        await handleRescind(uuid, client, interaction.user);
         break;
       case EDIT:
-        handleEdit(uuid, client, interaction.user);
+        await handleEdit(uuid, client, interaction.user);
         break;
       case REJECT_APPLICATION:
-        handleReject(uuid, client, interaction.user, queryString);
+        await handleReject(uuid, client, interaction.user, queryString);
         break;
       default:
         break;
     }
-    interaction.deferUpdate();
-  }
-  if (interaction.isCommand()) {
+  } else if (interaction.isCommand()) {
     const command = client.commands.get(interaction.commandName);
-
     if (!command) return;
-
     try {
       await command.execute(interaction);
     } catch (error) {

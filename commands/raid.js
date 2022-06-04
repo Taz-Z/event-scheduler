@@ -94,11 +94,11 @@ module.exports = {
     const row = new MessageActionRow().addComponents(
       new MessageButton()
         .setCustomId(`${interaction.id}&${APPLY}`)
-        .setLabel("Apply to Group")
+        .setLabel("RSVP")
         .setStyle(SUCCESS),
       new MessageButton()
         .setCustomId(`${interaction.id}&${RESCIND}`)
-        .setLabel("Can't Make It")
+        .setLabel("Cancel RSVP")
         .setStyle(DANGER),
       new MessageButton()
         .setCustomId(`${interaction.id}&${EDIT}`)
@@ -106,10 +106,20 @@ module.exports = {
         .setStyle(PRIMARY)
     );
 
-    const reply = await interaction.reply({
+    const ids = require("../channel_ids.json");
+    const channelToSend = await interaction.client.channels.cache.get(
+      ids.raid_channel
+    );
+
+    const reply = await channelToSend.send({
       embeds: [embed],
       components: [row],
       fetchReply: true,
+    });
+
+    interaction.reply({
+      content: "Posted embed in static-raid-groups channel",
+      ephemeral: true,
     });
 
     const newRaid = {
