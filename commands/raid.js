@@ -67,14 +67,14 @@ module.exports = {
     const leader = interaction.options.getString("leader");
     const chosenClass = interaction.options.getString("chosenclass");
     if (!content || !date || !leader || !chosenClass) return;
-    const isDps = isDps(chosenClass);
+    const amDps = isDps(chosenClass);
     const embed = getBaseEmbed(`${leader}'s ${content} Run`);
     embed
       .setDescription(`Date/Time of run: ${date}`)
       .addFields([
         {
           name: "Dps Slot 1",
-          value: isDps ? `${leader} (${chosenClass})` : "OPEN",
+          value: amDps ? `${leader} (${chosenClass})` : "OPEN",
           inline: true,
         },
         { name: "Dps Slot 2", value: "OPEN", inline: true },
@@ -84,7 +84,7 @@ module.exports = {
         { name: "Dps Slot 6", value: "OPEN", inline: true },
         {
           name: "Support Slot 1",
-          value: !isDps ? `${leader} (${chosenClass})` : "OPEN",
+          value: !amDps ? `${leader} (${chosenClass})` : "OPEN",
           inline: true,
         },
         { name: "Support Slot 2", value: "OPEN", inline: true },
@@ -93,15 +93,15 @@ module.exports = {
 
     const row = new MessageActionRow().addComponents(
       new MessageButton()
-        .setCustomId(`${interaction.id}-${APPLY}`)
+        .setCustomId(`${interaction.id}&${APPLY}`)
         .setLabel("Apply to Group")
         .setStyle(SUCCESS),
       new MessageButton()
-        .setCustomId(`${interaction.id}-${RESCIND}`)
+        .setCustomId(`${interaction.id}&${RESCIND}`)
         .setLabel("Can't Make It")
         .setStyle(DANGER),
       new MessageButton()
-        .setCustomId(`${interaction.id}-${EDIT}`)
+        .setCustomId(`${interaction.id}&${EDIT}`)
         .setLabel("Edit")
         .setStyle(PRIMARY)
     );
@@ -118,7 +118,7 @@ module.exports = {
       messageId: reply.id,
       content,
       date,
-      dps: isDps
+      dps: amDps
         ? [
             {
               id: interaction.user.id,
@@ -127,7 +127,7 @@ module.exports = {
             },
           ]
         : [],
-      supp: !isDps
+      supp: !amDps
         ? [
             {
               id: interaction.user.id,

@@ -1,10 +1,13 @@
 const { MessageButton, MessageActionRow } = require("discord.js");
 const {
+  PRIMARY,
   SUCCESS,
   DANGER,
   ACCEPT_APPLICATION,
   REJECT_APPLICATION,
-  supportClasses,
+  APPLY,
+  RESCIND,
+  EDIT,
 } = require("../helpers/consts");
 const {
   getButtonChoiceValue,
@@ -14,6 +17,7 @@ const {
   getRaidData,
   loadData,
   saveData,
+  isDps,
 } = require("../helpers/helper");
 
 const handleApply = async (uuid, user, client) => {
@@ -22,20 +26,20 @@ const handleApply = async (uuid, user, client) => {
   let notes = "";
   const chosenClass = await getClassValue(
     user,
-    `${uuid}-chosenClass`,
+    `${uuid}&chosenClass`,
     "Select your class"
   );
-  const isDps = supportClasses.has(chosenClass);
+  const amDps = isDps(chosenClass);
   const noteOptions = [
-    { label: "Yes", customId: `${uuid}-yes`, style: SUCCESS },
-    { label: "No", customId: `${uuid}-no`, style: DANGER },
+    { label: "Yes", customId: `${uuid}&yes`, style: SUCCESS },
+    { label: "No", customId: `${uuid}&no`, style: DANGER },
   ];
   const addNotes = await getButtonChoiceValue(
     user,
     "Would you like to send any additonal notes to the raid leader?",
     noteOptions
   );
-  const noteChoice = addNotes.split("-")[1] === "yes";
+  const noteChoice = addNotes.split("&")[1] === "yes";
   if (noteChoice) {
     notes = await getFirstTextAnswer(
       user,
@@ -49,20 +53,20 @@ const handleApply = async (uuid, user, client) => {
   embed
     .addField("Name", user.username)
     .addField("Class", chosenClass)
-    .addField("Role", isDps ? "Dps" : "Support")
+    .addField("Role", amDps ? "Dps" : "Support")
     .addField("Additional Notes", notes ? notes : "No additional Notes");
 
-  const queryString = `${user.id}-${user.username}-${chosenClass}-${isDps}`;
+  const queryString = `${user.id}-${user.username}-${chosenClass}-${amDps}`;
   const components = [
     new MessageActionRow().addComponents(
       new MessageButton()
         .setStyle(SUCCESS)
         .setLabel("Accept")
-        .setCustomId(`${uuid}-${ACCEPT_APPLICATION}-${queryString}`),
+        .setCustomId(`${uuid}&${ACCEPT_APPLICATION}&${queryString}`),
       new MessageButton()
         .setStyle(DANGER)
         .setLabel("Deny")
-        .setCustomId(`${uuid}-${REJECT_APPLICATION}-${queryString}`)
+        .setCustomId(`${uuid}&${REJECT_APPLICATION}&${queryString}`)
     ),
   ];
 
@@ -85,39 +89,48 @@ const handleAccept = async (uuid, client, admin, queryString) => {
   loadedData[uuid] = data;
   await saveData(loadedData);
 
-  const dps = data.dps.map((d, i) => {
-    return {
-      name: `Dps Slot ${i + 1}`,
-      value: `${d.name} (${d.chosenClass})`,
-      inline: true,
-    };
-  });
+  const fields = [];
 
-  const supps = data.supp.map((d, i) => {
-    return {
-      name: `Support Slot ${i + 1}`,
-      value: `${d.name} (${d.chosenClass})`,
+  for (let i = 0; i < 6; i++) {
+    fields.push({
+      name: `Dps Slot ${i + 1}`,
+      value:
+        i < data.dps.length
+          ? `${data.dps[i].name} (${data.dps[i].chosenClass})`
+          : "OPEN",
       inline: true,
-    };
-  });
+    });
+  }
+
+  for (let i = 0; i < 2; i++) {
+    fields.push({
+      name: `Support Slot ${i + 1}`,
+      value:
+        i < data.supp.length
+          ? `${data.supp[i].name} (${data.supp[i].chosenClass})`
+          : "OPEN",
+      inline: true,
+    });
+  }
 
   const embed = getBaseEmbed(`${data.leader}'s ${data.content} Run`);
   embed
     .setDescription(`Date/Time of run: ${data.date}`)
-    .addFields([...dps, ...supps])
+    .addFields(fields)
     .setFooter({ text: "Click on the button below to apply to the group" });
 
   const row = new MessageActionRow().addComponents(
     new MessageButton()
-      .setCustomId(`${uuid}-${APPLY}`)
+      .setCustomId(`${uuid}&${APPLY}`)
       .setLabel("Apply to Group")
-      .setStyle(SUCCESS),
+      .setStyle(SUCCESS)
+      .setDisabled(data.dps.length === 6 && data.supp.length === 2),
     new MessageButton()
-      .setCustomId(`${uuid}-${RESCIND}`)
+      .setCustomId(`${uuid}&${RESCIND}`)
       .setLabel("Can't Make It")
       .setStyle(DANGER),
     new MessageButton()
-      .setCustomId(`${uuid}-${EDIT}`)
+      .setCustomId(`${uuid}&${EDIT}`)
       .setLabel("Edit")
       .setStyle(PRIMARY)
   );
@@ -127,6 +140,8 @@ const handleAccept = async (uuid, client, admin, queryString) => {
     .get(ids.raid_channel)
     .messages.fetch(data.messageId);
   originalEmbed.edit({ embeds: [embed], components: [row] });
+  user.send("You were accepted for: " + `${data.leader}'s ${data.content} Run`);
+  admin.send(`${name} accepted into your ${data.content} Run`);
 };
 
 module.exports = { handleApply, handleAccept };

@@ -43,7 +43,8 @@ client.once("ready", () => {
 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isButton()) {
-    const [uuid, actionType, queryString] = interaction.customId.split("-");
+    const [uuid, actionType, queryString] = interaction.customId.split("&");
+    console.log(uuid, actionType);
     switch (actionType) {
       case APPLY:
         handleApply(uuid, interaction.user, client);
