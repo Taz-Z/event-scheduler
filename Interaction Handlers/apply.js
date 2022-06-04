@@ -18,6 +18,7 @@ const {
   loadData,
   saveData,
   isDps,
+  updateEmbed,
 } = require("../helpers/helper");
 
 const handleApply = async (uuid, user, client) => {
@@ -56,7 +57,7 @@ const handleApply = async (uuid, user, client) => {
     .addField("Role", amDps ? "Dps" : "Support")
     .addField("Additional Notes", notes ? notes : "No additional Notes");
 
-  const queryString = `${user.id}-${user.username}-${chosenClass}-${amDps}`;
+  const queryString = `${user.id}-${user.username}-${chosenClass}`;
   const components = [
     new MessageActionRow().addComponents(
       new MessageButton()
@@ -76,72 +77,35 @@ const handleApply = async (uuid, user, client) => {
 const handleAccept = async (uuid, client, admin, queryString) => {
   const loadedData = await loadData();
   const data = loadedData[uuid];
-  const [id, name, chosenClass, isDps] = queryString.split("-");
+  const [id, name, chosenClass] = queryString.split("-");
+  const amDps = isDps(chosenClass);
 
-  const ids = require("../channel_ids.json");
-
-  if (isDps) {
+  if (amDps) {
     data.dps.push({ id, name, chosenClass });
   } else {
     data.supp.push({ id, name, chosenClass });
   }
 
+  if (data.dps.length > 6 && amDps) {
+    return admin.send(
+      `Failed to accept individual, your group already has enough dps`
+    );
+  }
+
+  if (data.supp.length > 2 && !amDps) {
+    return admin.send(
+      `Failed to accept individual, your group already has enough supports`
+    );
+  }
+
   loadedData[uuid] = data;
   await saveData(loadedData);
 
-  const fields = [];
-
-  for (let i = 0; i < 6; i++) {
-    fields.push({
-      name: `Dps Slot ${i + 1}`,
-      value:
-        i < data.dps.length
-          ? `${data.dps[i].name} (${data.dps[i].chosenClass})`
-          : "OPEN",
-      inline: true,
-    });
-  }
-
-  for (let i = 0; i < 2; i++) {
-    fields.push({
-      name: `Support Slot ${i + 1}`,
-      value:
-        i < data.supp.length
-          ? `${data.supp[i].name} (${data.supp[i].chosenClass})`
-          : "OPEN",
-      inline: true,
-    });
-  }
-
-  const embed = getBaseEmbed(`${data.leader}'s ${data.content} Run`);
-  embed
-    .setDescription(`Date/Time of run: ${data.date}`)
-    .addFields(fields)
-    .setFooter({ text: "Click on the button below to apply to the group" });
-
-  const row = new MessageActionRow().addComponents(
-    new MessageButton()
-      .setCustomId(`${uuid}&${APPLY}`)
-      .setLabel("Apply to Group")
-      .setStyle(SUCCESS)
-      .setDisabled(data.dps.length === 6 && data.supp.length === 2),
-    new MessageButton()
-      .setCustomId(`${uuid}&${RESCIND}`)
-      .setLabel("Can't Make It")
-      .setStyle(DANGER),
-    new MessageButton()
-      .setCustomId(`${uuid}&${EDIT}`)
-      .setLabel("Edit")
-      .setStyle(PRIMARY)
-  );
-
   const user = client.users.cache.get(id);
-  const originalEmbed = await client.channels.cache
-    .get(ids.raid_channel)
-    .messages.fetch(data.messageId);
-  originalEmbed.edit({ embeds: [embed], components: [row] });
-  user.send("You were accepted for: " + `${data.leader}'s ${data.content} Run`);
+  user.send(`You were accepted for: ${data.leader}'s ${data.content} Run`);
   admin.send(`${name} accepted into your ${data.content} Run`);
+
+  await updateEmbed(data, uuid, client);
 };
 
 module.exports = { handleApply, handleAccept };

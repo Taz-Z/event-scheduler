@@ -4,7 +4,16 @@ const {
   MessageSelectMenu,
 } = require("discord.js");
 const fs = require("fs");
-const { classes, supportClasses } = require("./consts");
+const {
+  PRIMARY,
+  SUCCESS,
+  DANGER,
+
+  APPLY,
+  RESCIND,
+  EDIT,
+  supportClasses,
+} = require("./consts");
 
 const hasValidRole = (givenRoles, ...addtionalRoles) => {
   const acceptedRoles = new Set();
@@ -196,6 +205,60 @@ const saveData = async (data) => {
 
 const isDps = (chosenClass) => !supportClasses.has(chosenClass);
 
+const updateEmbed = async (data, uuid, client) => {
+  const fields = [];
+
+  for (let i = 0; i < 6; i++) {
+    fields.push({
+      name: `Dps Slot ${i + 1}`,
+      value:
+        i < data.dps.length
+          ? `${data.dps[i].name} (${data.dps[i].chosenClass})`
+          : "OPEN",
+      inline: true,
+    });
+  }
+
+  for (let i = 0; i < 2; i++) {
+    fields.push({
+      name: `Support Slot ${i + 1}`,
+      value:
+        i < data.supp.length
+          ? `${data.supp[i].name} (${data.supp[i].chosenClass})`
+          : "OPEN",
+      inline: true,
+    });
+  }
+
+  const embed = getBaseEmbed(`${data.leader}'s ${data.content} Run`);
+  embed
+    .setDescription(`Date/Time of run: ${data.date}`)
+    .addFields(fields)
+    .setFooter({ text: "Click on the button below to apply to the group" });
+
+  const row = new MessageActionRow().addComponents(
+    new MessageButton()
+      .setCustomId(`${uuid}&${APPLY}`)
+      .setLabel("Apply to Group")
+      .setStyle(SUCCESS)
+      .setDisabled(data.dps.length >= 6 && data.supp.length >= 2),
+    new MessageButton()
+      .setCustomId(`${uuid}&${RESCIND}`)
+      .setLabel("Can't Make It")
+      .setStyle(DANGER),
+    new MessageButton()
+      .setCustomId(`${uuid}&${EDIT}`)
+      .setLabel("Edit")
+      .setStyle(PRIMARY)
+  );
+
+  const ids = require("../channel_ids.json");
+  const originalEmbed = await client.channels.cache
+    .get(ids.raid_channel)
+    .messages.fetch(data.messageId);
+  originalEmbed.edit({ embeds: [embed], components: [row] });
+};
+
 module.exports = {
   getMemb,
   getIdGuildMemb,
@@ -213,4 +276,5 @@ module.exports = {
   getRaidData,
   getClassValue,
   isDps,
+  updateEmbed,
 };

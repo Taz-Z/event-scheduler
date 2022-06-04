@@ -10,6 +10,8 @@ const {
   REJECT_APPLICATION,
 } = require("./helpers/consts");
 const { handleApply, handleAccept } = require("./Interaction Handlers/apply");
+const { handleReject } = require("./Interaction Handlers/reject");
+const { handleRescind } = require("./Interaction Handlers/rescind");
 const client = new Client({
   intents: [
     Intents.FLAGS.DIRECT_MESSAGES,
@@ -32,8 +34,6 @@ const commandFiles = fs
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
   const command = require(filePath);
-  // Set a new item in the Collection
-  // With the key as the command name and the value as the exported module
   client.commands.set(command.data.name, command);
 }
 
@@ -44,7 +44,6 @@ client.once("ready", () => {
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isButton()) {
     const [uuid, actionType, queryString] = interaction.customId.split("&");
-    console.log(uuid, actionType);
     switch (actionType) {
       case APPLY:
         handleApply(uuid, interaction.user, client);
@@ -53,8 +52,12 @@ client.on("interactionCreate", async (interaction) => {
         handleAccept(uuid, client, interaction.user, queryString);
         break;
       case RESCIND:
+        handleRescind(uuid, client, interaction.user);
+        break;
       case EDIT:
       case REJECT_APPLICATION:
+        handleReject(uuid, client, interaction.user, queryString);
+        break;
       default:
         break;
     }
