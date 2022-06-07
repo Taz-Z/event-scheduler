@@ -239,12 +239,12 @@ const updateEmbed = async (data, uuid, client) => {
   const row = new MessageActionRow().addComponents(
     new MessageButton()
       .setCustomId(`${uuid}&${APPLY}`)
-      .setLabel("Apply to Group")
+      .setLabel("RSVP")
       .setStyle(SUCCESS)
       .setDisabled(data.dps.length >= 6 && data.supp.length >= 2),
     new MessageButton()
       .setCustomId(`${uuid}&${RESCIND}`)
-      .setLabel("Can't Make It")
+      .setLabel("Cancel RSVP")
       .setStyle(DANGER),
     new MessageButton()
       .setCustomId(`${uuid}&${EDIT}`)
