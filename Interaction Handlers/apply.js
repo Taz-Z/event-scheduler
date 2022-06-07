@@ -65,6 +65,7 @@ const handleApply = async (uuid, user, client) => {
   ];
 
   admin.send({ embeds: [embed], components });
+  user.send("Your application has been submitted");
 };
 
 module.exports = { handleApply };
