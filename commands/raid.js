@@ -1,15 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { MessageActionRow, MessageButton } = require("discord.js");
-const {
-  APPLY,
-  RESCIND,
-  EDIT,
-  SUCCESS,
-  DANGER,
-  PRIMARY,
-  classes,
-  content,
-} = require("../helpers/consts");
+const { classes, content } = require("../helpers/consts");
 const {
   getBaseEmbed,
   loadData,
@@ -68,64 +58,11 @@ module.exports = {
     const chosenClass = interaction.options.getString("chosenclass");
     if (!content || !date || !leader || !chosenClass) return;
     const amDps = isDps(chosenClass);
-    const embed = getBaseEmbed(`${leader}'s ${content} Run`);
-    embed
-      .setDescription(`Date/Time of run: ${date}`)
-      .addFields([
-        {
-          name: "Dps Slot 1",
-          value: amDps ? `${leader} (${chosenClass})` : "OPEN",
-          inline: true,
-        },
-        { name: "Dps Slot 2", value: "OPEN", inline: true },
-        { name: "Dps Slot 3", value: "OPEN", inline: true },
-        { name: "Dps Slot 4", value: "OPEN", inline: true },
-        { name: "Dps Slot 5", value: "OPEN", inline: true },
-        { name: "Dps Slot 6", value: "OPEN", inline: true },
-        {
-          name: "Support Slot 1",
-          value: !amDps ? `${leader} (${chosenClass})` : "OPEN",
-          inline: true,
-        },
-        { name: "Support Slot 2", value: "OPEN", inline: true },
-      ])
-      .setFooter({ text: "Click on the button below to apply to the group" });
-
-    const row = new MessageActionRow().addComponents(
-      new MessageButton()
-        .setCustomId(`${interaction.id}&${APPLY}`)
-        .setLabel("RSVP")
-        .setStyle(SUCCESS),
-      new MessageButton()
-        .setCustomId(`${interaction.id}&${RESCIND}`)
-        .setLabel("Cancel RSVP")
-        .setStyle(DANGER),
-      new MessageButton()
-        .setCustomId(`${interaction.id}&${EDIT}`)
-        .setLabel("Edit")
-        .setStyle(PRIMARY)
-    );
-
-    const ids = require("../channel_ids.json");
-    const channelToSend = await interaction.client.channels.cache.get(
-      ids.raid_channel
-    );
-
-    const reply = await channelToSend.send({
-      embeds: [embed],
-      components: [row],
-      fetchReply: true,
-    });
-
-    interaction.reply({
-      content: "Posted embed in static-raid-groups channel",
-      ephemeral: true,
-    });
 
     const newRaid = {
       admin: interaction.user.id,
       leader,
-      messageId: reply.id,
+      messageId: "",
       content,
       date,
       dps: amDps
@@ -147,6 +84,24 @@ module.exports = {
           ]
         : [],
     };
+
+    const ids = require("../channel_ids.json");
+    const channelToSend = await interaction.client.channels.cache.get(
+      ids.raid_channel
+    );
+
+    const reply = await channelToSend.send({
+      ...getBaseEmbed(newRaid, interaction.id),
+      fetchReply: true,
+    });
+
+    newRaid.messageId = reply.id;
+
+    interaction.reply({
+      content: "Posted embed in static-raid-groups channel",
+      ephemeral: true,
+    });
+
     const schedule = await loadData();
     schedule[interaction.id] = newRaid; //add some data
     await saveData(schedule);

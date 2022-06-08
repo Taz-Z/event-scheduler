@@ -1,13 +1,24 @@
-const { info } = require("winston");
-const { content, SUCCESS, DANGER } = require("../helpers/consts");
+const { content } = require("../helpers/consts");
 const {
   loadData,
   getSelectMenuValue,
   getFirstTextAnswer,
   saveData,
   updateEmbed,
-  getButtonChoiceValue,
 } = require("../helpers/helper");
+
+const removeUser = async (data, user, uuid) => {
+  const options = data.map((d) => {
+    return { label: `${d.name} (${d.chosenClass})`, value: d.id };
+  });
+  const toRemove = await getSelectMenuValue(
+    user,
+    `${uuid}&handleEdit&dps`,
+    "Select a dps to remove",
+    options
+  );
+  return data.filter((d) => d.id !== toRemove);
+};
 
 const handleEdit = async (uuid, client, user) => {
   const loadedData = await loadData();
@@ -66,28 +77,10 @@ const handleEdit = async (uuid, client, user) => {
       data.date = newDate;
       break;
     case "dps":
-      const dpsOptions = data.dps.map((d) => {
-        return { label: `${d.name} (${d.chosenClass})`, value: d.id };
-      });
-      const dpsToRemove = await getSelectMenuValue(
-        user,
-        `${uuid}&handleEdit&dps`,
-        "Select a dps to remove",
-        dpsOptions
-      );
-      data.dps = data.dps.filter((d) => d.id !== dpsToRemove);
+      data.dps = await removeUser(data.dps, user, uuid);
       break;
     case "supp":
-      const suppOptions = data.supp.map((d) => {
-        return { label: `${d.name} (${d.chosenClass})`, value: d.id };
-      });
-      const suppToRemove = await getSelectMenuValue(
-        user,
-        `${uuid}&handleEdit&supp`,
-        "Select a dps to remove",
-        suppOptions
-      );
-      data.supp = data.supp.filter((d) => d.id !== suppToRemove);
+      data.supp = await removeUser(data.supp, user, uuid);
       break;
     default:
       break;

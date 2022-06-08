@@ -8,7 +8,6 @@ const {
   PRIMARY,
   SUCCESS,
   DANGER,
-
   APPLY,
   RESCIND,
   EDIT,
@@ -34,35 +33,6 @@ const getBaseEmbed = (title) => {
       iconURL: "https://i.imgur.com/kYJ7fbn.png",
     });
 };
-
-const getIdGuildMemb = (message) => {
-  const ids = JSON.parse(fs.readFileSync("./channel_ids.json", "utf8"));
-  const guild = message.client.guilds.cache.get(ids["guild"]);
-  const memb = guild.members.cache.get(message.author.id);
-  return [ids, guild, memb];
-};
-
-const getMemb = (message) => {
-  const [ids, guild, memb] = getIdGuildMemb(message);
-  return memb;
-};
-
-const getGuild = (message) => {
-  const [ids, guild, memb] = getIdGuildMemb(message);
-  return guild;
-};
-
-const getIds = (message) => {
-  const [ids, guild, memb] = getIdGuildMemb(message);
-  return ids;
-};
-
-const getGuildFromClient = async (client) => {
-  const ids = JSON.parse(fs.readFileSync("./channel_ids.json", "utf8"));
-  return client.guilds.cache.get(ids.guild);
-};
-
-const createEmbedSpace = () => ({ name: "\u200b", value: "\u200b" });
 
 const getButtonChoiceValue = async (
   memb,
@@ -205,7 +175,7 @@ const saveData = async (data) => {
 
 const isDps = (chosenClass) => !supportClasses.has(chosenClass);
 
-const updateEmbed = async (data, uuid, client) => {
+const getBaseRaidEmbed = (data, uuid) => {
   const fields = [];
 
   for (let i = 0; i < 6; i++) {
@@ -252,22 +222,20 @@ const updateEmbed = async (data, uuid, client) => {
       .setStyle(PRIMARY)
   );
 
+  return { embed: [embed], components: [row] };
+};
+const updateEmbed = async (data, uuid, client) => {
+  const options = getBaseRaidEmbed(data, uuid);
   const ids = require("../channel_ids.json");
   const originalEmbed = await client.channels.cache
     .get(ids.raid_channel)
     .messages.fetch(data.messageId);
-  originalEmbed.edit({ embeds: [embed], components: [row] });
+  originalEmbed.edit(options);
 };
 
 module.exports = {
-  getMemb,
-  getIdGuildMemb,
   hasValidRole,
   getBaseEmbed,
-  createEmbedSpace,
-  getGuild,
-  getIds,
-  getGuildFromClient,
   getSelectMenuValue,
   getButtonChoiceValue,
   getFirstTextAnswer,
