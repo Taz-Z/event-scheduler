@@ -48,8 +48,7 @@ client.on("interactionCreate", async (interaction) => {
     const [uuid, actionType, queryString] = interaction.customId.split("&");
     switch (actionType) {
       case APPLY:
-        interaction.deferUpdate();
-        await handleApply(uuid, interaction.user, client);
+        await handleApply(uuid, interaction.user, client, interaction);
         break;
       case ACCEPT_APPLICATION:
         await handleAccept(
@@ -61,13 +60,13 @@ client.on("interactionCreate", async (interaction) => {
         );
         break;
       case RESCIND:
-        await handleRescind(uuid, client, interaction.user);
+        await handleRescind(uuid, client, interaction.user, interaction);
         break;
       case EDIT:
-        await handleEdit(uuid, client, interaction.user);
+        await handleEdit(uuid, client, interaction.user, interaction);
         break;
       case REJECT_APPLICATION:
-        await handleReject(uuid, client, interaction.user, queryString);
+        await handleReject(uuid, client, interaction.user, queryString, inter);
         break;
       default:
         break;

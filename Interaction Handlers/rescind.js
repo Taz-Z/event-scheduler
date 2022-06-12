@@ -1,6 +1,6 @@
 const { loadData, saveData, updateEmbed } = require("../helpers/helper");
 
-const handleRescind = async (uuid, client, user) => {
+const handleRescind = async (uuid, client, user, interaction) => {
   const loadedData = await loadData();
   const raidData = loadedData[uuid];
   const userId = user.id;
@@ -14,9 +14,10 @@ const handleRescind = async (uuid, client, user) => {
   await updateEmbed(raidData, uuid, client);
 
   const admin = client.users.cache.get(raidData.admin);
-  user.send(
-    `You have successfully been removed from ${raidData.leader}'s ${raidData.content} Run`
-  );
+  interaction.reply({
+    content: `You have successfully been removed from ${raidData.leader}'s ${raidData.content} Run`,
+    ephemeral: true,
+  });
   admin.send(
     `${user.username} has removed themselves from your ${raidData.content} Run`
   );

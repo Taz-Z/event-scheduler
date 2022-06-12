@@ -12,6 +12,7 @@ const {
   RESCIND,
   EDIT,
   supportClasses,
+  classes,
 } = require("./consts");
 
 const hasValidRole = (givenRoles, ...addtionalRoles) => {
@@ -84,26 +85,6 @@ const getButtonChoiceValue = async (
   }
 };
 const getClassValue = async (memb, id, content) => {
-  const classes = [
-    "Berserker",
-    "Paladin",
-    "Gunlancer",
-    "Destroyer",
-    "Striker",
-    "Wardancer",
-    "Scrapper",
-    "Soulfist",
-    "Glavier",
-    "Gunslinger",
-    "Artillerist",
-    "Deadeye",
-    "Sharpshooter",
-    "Bard",
-    "Sorceress",
-    "Arcana",
-    "ShadowHunter",
-    "Deathblade",
-  ];
   return await getSelectMenuValue(
     memb,
     id,
@@ -222,7 +203,7 @@ const getBaseRaidEmbed = (data, uuid) => {
       .setStyle(PRIMARY)
   );
 
-  return { embed: [embed], components: [row] };
+  return { embeds: [embed], components: [row] };
 };
 const updateEmbed = async (data, uuid, client) => {
   const options = getBaseRaidEmbed(data, uuid);
@@ -233,6 +214,9 @@ const updateEmbed = async (data, uuid, client) => {
   originalEmbed.edit(options);
 };
 
+const createCustomId = (...args) => {
+  return args.join("&");
+};
 module.exports = {
   hasValidRole,
   getBaseEmbed,
@@ -245,4 +229,6 @@ module.exports = {
   getClassValue,
   isDps,
   updateEmbed,
+  createCustomId,
+  getBaseRaidEmbed,
 };

@@ -1,10 +1,10 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { classes, content } = require("../helpers/consts");
 const {
-  getBaseEmbed,
   loadData,
   saveData,
   isDps,
+  getBaseRaidEmbed,
 } = require("../helpers/helper");
 
 module.exports = {
@@ -91,7 +91,7 @@ module.exports = {
     );
 
     const reply = await channelToSend.send({
-      ...getBaseEmbed(newRaid, interaction.id),
+      ...getBaseRaidEmbed(newRaid, interaction.id),
       fetchReply: true,
     });
 

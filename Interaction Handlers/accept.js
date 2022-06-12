@@ -1,6 +1,6 @@
 const { loadData, saveData, isDps, updateEmbed } = require("../helpers/helper");
 
-const handleAccept = async (uuid, client, admin, queryString) => {
+const handleAccept = async (uuid, client, admin, queryString, interaction) => {
   const loadedData = await loadData();
   const data = loadedData[uuid];
   const [id, name, chosenClass] = queryString.split("-");
@@ -9,7 +9,7 @@ const handleAccept = async (uuid, client, admin, queryString) => {
   const isInGroup = [...data.dps, ...data.supp].some((d) => d.id === id);
 
   if (isInGroup) {
-    return admin.send("User is already in group");
+    return interaction.reply("User is already in group");
   }
   if (amDps) {
     data.dps.push({ id, name, chosenClass });
@@ -18,13 +18,13 @@ const handleAccept = async (uuid, client, admin, queryString) => {
   }
 
   if (data.dps.length > 6 && amDps) {
-    return admin.send(
+    return interaction.reply(
       `Failed to accept individual, your group already has enough dps`
     );
   }
 
   if (data.supp.length > 2 && !amDps) {
-    return admin.send(
+    return interaction.reply(
       `Failed to accept individual, your group already has enough supports`
     );
   }
@@ -34,7 +34,7 @@ const handleAccept = async (uuid, client, admin, queryString) => {
 
   const user = client.users.cache.get(id);
   user.send(`You were accepted for: ${data.leader}'s ${data.content} Run`);
-  admin.send(`${name} accepted into your ${data.content} Run`);
+  interaction.reply(`${name} accepted into your ${data.content} Run`);
 
   await updateEmbed(data, uuid, client);
 };
