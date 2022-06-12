@@ -1,6 +1,6 @@
 const { loadData, saveData, isDps, updateEmbed } = require("../helpers/helper");
 
-const handleAccept = async (uuid, client, admin, queryString, interaction) => {
+const handleAccept = async (uuid, user, interaction, client, queryString) => {
   const loadedData = await loadData();
   const data = loadedData[uuid];
   const [id, name, chosenClass] = queryString.split("-");
@@ -32,8 +32,10 @@ const handleAccept = async (uuid, client, admin, queryString, interaction) => {
   loadedData[uuid] = data;
   await saveData(loadedData);
 
-  const user = client.users.cache.get(id);
-  user.send(`You were accepted for: ${data.leader}'s ${data.content} Run`);
+  const userToSend = client.users.cache.get(id);
+  userToSend.send(
+    `You were accepted for: ${data.leader}'s ${data.content} Run`
+  );
   interaction.reply(`${name} accepted into your ${data.content} Run`);
 
   await updateEmbed(data, uuid, client);

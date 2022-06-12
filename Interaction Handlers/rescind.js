@@ -1,6 +1,6 @@
 const { loadData, saveData, updateEmbed } = require("../helpers/helper");
 
-const handleRescind = async (uuid, client, user, interaction) => {
+const handleRescind = async (uuid, user, interaction, client) => {
   const loadedData = await loadData();
   const raidData = loadedData[uuid];
   const userId = user.id;

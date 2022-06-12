@@ -53,20 +53,26 @@ client.on("interactionCreate", async (interaction) => {
       case ACCEPT_APPLICATION:
         await handleAccept(
           uuid,
-          client,
           interaction.user,
-          queryString,
-          interaction
+          client,
+          interaction,
+          queryString
         );
         break;
       case RESCIND:
-        await handleRescind(uuid, client, interaction.user, interaction);
+        await handleRescind(uuid, interaction.user, client, interaction);
         break;
       case EDIT:
-        await handleEdit(uuid, client, interaction.user, interaction);
+        await handleEdit(uuid, interaction.user, client, interaction);
         break;
       case REJECT_APPLICATION:
-        await handleReject(uuid, client, interaction.user, queryString, inter);
+        await handleReject(
+          uuid,
+          interaction.user,
+          client,
+          interaction,
+          queryString
+        );
         break;
       default:
         break;

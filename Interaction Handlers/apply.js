@@ -14,7 +14,7 @@ const {
   isDps,
 } = require("../helpers/helper");
 
-const handleApply = async (uuid, user, client, interaction) => {
+const handleApply = async (uuid, user, interaction, client) => {
   interaction.reply({ content: "Please check your dms", ephemeral: true });
   const data = await getRaidData(uuid);
 

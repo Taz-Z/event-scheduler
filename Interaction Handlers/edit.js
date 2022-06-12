@@ -20,7 +20,7 @@ const removeUser = async (data, user, uuid) => {
   return data.filter((d) => d.id !== toRemove);
 };
 
-const handleEdit = async (uuid, client, user, interaction) => {
+const handleEdit = async (uuid, user, interaction, client) => {
   interaction.reply({ content: "Please check your dms", ephemeral: true });
   const loadedData = await loadData();
   const data = loadedData[uuid];
