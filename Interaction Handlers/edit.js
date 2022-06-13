@@ -5,6 +5,7 @@ const {
   getFirstTextAnswer,
   saveData,
   updateEmbed,
+  createCustomId,
 } = require("../helpers/helper");
 
 const removeUser = async (data, user, uuid) => {
@@ -49,7 +50,7 @@ const handleEdit = async (uuid, user, interaction, client) => {
 
   const chosenEdit = await getSelectMenuValue(
     user,
-    `${uuid}&${user.id}&handleEdit`,
+    createCustomId(uuid, user.id, "handleEdit"),
     "What would you like to edit?",
     editOptions
   );
@@ -64,7 +65,7 @@ const handleEdit = async (uuid, user, interaction, client) => {
       });
       const chosenContent = await getSelectMenuValue(
         user,
-        `${uuid}&handleEdit&content`,
+        createCustomId(uuid, user.id, "handleEdit", "content"),
         "Select a raid to run",
         bossOptions
       );

@@ -4,6 +4,8 @@ const {
   DANGER,
   ACCEPT_APPLICATION,
   REJECT_APPLICATION,
+  YES,
+  NO,
 } = require("../helpers/consts");
 const {
   getButtonChoiceValue,
@@ -12,6 +14,7 @@ const {
   getClassValue,
   getRaidData,
   isDps,
+  createCustomId,
 } = require("../helpers/helper");
 
 const handleApply = async (uuid, user, interaction, client) => {
@@ -26,15 +29,15 @@ const handleApply = async (uuid, user, interaction, client) => {
   );
   const amDps = isDps(chosenClass);
   const noteOptions = [
-    { label: "Yes", customId: `${uuid}&yes`, style: SUCCESS },
-    { label: "No", customId: `${uuid}&no`, style: DANGER },
+    { label: "Yes", customId: createCustomId(uuid, YES), style: SUCCESS },
+    { label: "No", customId: createCustomId(uuid, NO), style: DANGER },
   ];
   const addNotes = await getButtonChoiceValue(
     user,
     "Would you like to send any additonal notes to the raid leader?",
     noteOptions
   );
-  const noteChoice = addNotes.split("&")[1] === "yes";
+  const noteChoice = addNotes.split("&")[1] === YES;
   if (noteChoice) {
     notes = await getFirstTextAnswer(
       user,
@@ -57,11 +60,11 @@ const handleApply = async (uuid, user, interaction, client) => {
       new MessageButton()
         .setStyle(SUCCESS)
         .setLabel("Accept")
-        .setCustomId(`${uuid}&${ACCEPT_APPLICATION}&${queryString}`),
+        .setCustomId(createCustomId(uuid, ACCEPT_APPLICATION, queryString)),
       new MessageButton()
         .setStyle(DANGER)
         .setLabel("Deny")
-        .setCustomId(`${uuid}&${REJECT_APPLICATION}&${queryString}`)
+        .setCustomId(createCustomId(uuid, REJECT_APPLICATION, queryString))
     ),
   ];
 

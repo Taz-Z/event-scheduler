@@ -4,13 +4,13 @@ const handleAccept = async (uuid, user, interaction, client, queryString) => {
   const loadedData = await loadData();
   const data = loadedData[uuid];
   const [id, name, chosenClass] = queryString.split("-");
-  const amDps = isDps(chosenClass);
 
   const isInGroup = [...data.dps, ...data.supp].some((d) => d.id === id);
-
   if (isInGroup) {
     return interaction.reply("User is already in group");
   }
+
+  const amDps = isDps(chosenClass);
   if (amDps) {
     data.dps.push({ id, name, chosenClass });
   } else {

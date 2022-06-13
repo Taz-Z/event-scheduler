@@ -1,11 +1,13 @@
-const APPLY = "apply";
-const ACCEPT_APPLICATION = "acceptapplication";
-const REJECT_APPLICATION = "rejectapplication";
+const APPLY = "APPLY";
+const ACCEPT_APPLICATION = "ACCEPT_APPLICATION";
+const REJECT_APPLICATION = "REJECT_APPLICATION";
 const RESCIND = "rescind";
 const EDIT = "EDIT";
 const SUCCESS = "SUCCESS";
 const DANGER = "DANGER";
 const PRIMARY = "PRIMARY";
+const YES = "YES";
+const NO = "NO";
 
 const classes = [
   "Berserker",
@@ -39,6 +41,7 @@ const content = [
   "Normal Vykas",
   "Hard Mode Vykas",
 ];
+
 module.exports = {
   APPLY,
   ACCEPT_APPLICATION,
@@ -48,6 +51,8 @@ module.exports = {
   SUCCESS,
   DANGER,
   PRIMARY,
+  YES,
+  NO,
   classes,
   supportClasses,
   content,
